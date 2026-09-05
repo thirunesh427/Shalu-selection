@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Shalu Selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">Shalu Selection <span>Textiles</span></a>
+    <nav class="links">
+      <a href="index.html" data-page="index.html">Home</a>
+      <a href="shop.html" data-page="shop.html">Shop</a>
+      <a href="about.html" data-page="about.html">About</a>
+      <a href="contact.html" data-page="contact.html">Contact</a>
+      <a href="cart.html" data-page="cart.html" class="cart-btn">🛍 Cart <span class="cart-count">0</span></a>
+      <div id="authArea" class="auth-area"></div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section style="padding-top:40px;" id="adminSection"></section>
+</main>
+
+<footer>
+  <div class="foot-wrap">
+    <div>
+      <div class="logo" style="color:var(--marigold);font-size:1.3rem;">Shalu Selection</div>
+      <p style="max-width:280px;font-size:.85rem;opacity:.8;margin-top:10px;">Handpicked sarees, kurtis, dress materials and lehengas — colour and craft, brought to your doorstep.</p>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h4>Store</h4>
+        <a href="admin.html">Admin Panel</a>
+        <a href="cart.html">My Cart</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 Shalu Selection. Made with colour, for everyone.</div>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  const section = document.getElementById("adminSection");
+  let uploadedImage = null;
+
+  function renderLogin() {
+    section.innerHTML = `
+      <div class="lock-card">
+        <div style="font-size:2.2rem;margin-bottom:6px;">🔒</div>
+        <h2 style="font-size:1.4rem;">Admin Access</h2>
+        <p style="color:rgba(58,18,32,0.65);font-size:.9rem;">Enter the store password to manage collections.</p>
+        <form id="adminLoginForm" class="simple" style="margin-top:16px;">
+          <input type="password" id="adminPass" placeholder="Password" required>
+          <button type="submit" class="btn teal" style="justify-content:center;">Unlock</button>
+        </form>
+      </div>
+    `;
+    document.getElementById("adminLoginForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const val = document.getElementById("adminPass").value;
+      if (val === ADMIN_PASSWORD) {
+        setAdminSession(val);
+        renderPanel();
+      } else {
+        showToast("Incorrect password");
+      }
+    });
+  }
+
+  async function renderPanel() {
+    section.innerHTML = `<div class="loading-row">Loading collections…</div>`;
+    const products = await getProducts();
+    const status = await checkSheetConnection();
+
+    const statusBanner = {
+      connected: `<div class="note-banner">🟢 Connected to your Google Sheet — uploads and removals will show for every visitor.</div>`,
+      error: `<div class="note-banner">🔴 A Google Sheet URL is set in config.js, but the site couldn't reach it right now. Uploads may fail — check the deployment and SETUP.md.</div>`,
+      unconfigured: `<div class="note-banner">🟡 Local demo mode — no Google Sheet connected yet. Uploads are only saved to this browser. See SETUP.md to connect Google Sheets.</div>`,
+    }[status];
+
+    section.innerHTML = `
+      <div class="section-head" style="margin-bottom:10px;">
+        <div class="eyebrow">Store Management</div>
+        <h2>Admin Panel</h2>
+      </div>
+      ${statusBanner}
+      <div class="admin-grid">
+        <div class="panel">
+          <h3>Add a new collection piece</h3>
+          <form class="simple" id="addProductForm">
+            <div><label>Product Name</label><input type="text" id="fName" required placeholder="e.g. Coral Silk Saree"></div>
+            <div><label>Category</label>
+              <select id="fCategory" required>
+                ${CATEGORIES.map((c) => `<option value="${c.name}">${c.name}</option>`).join("")}
+              </select>
+            </div>
+            <div><label>Price (₹)</label><input type="number" id="fPrice" min="1" required placeholder="e.g. 1999"></div>
+            <div><label>Description</label><textarea id="fDesc" rows="3" placeholder="Fabric, occasion, details..."></textarea></div>
+            <div>
+              <label>Product Photo</label>
+              <div class="file-drop">
+                <input type="file" id="fImage" accept="image/*">
+                <img id="fPreview" class="thumb-preview">
+              </div>
+            </div>
+            <div>
+              <label>Or paste an image link instead</label>
+              <input type="text" id="fImageUrl" placeholder="https://example.com/photo.jpg">
+              <p style="font-size:.76rem;color:rgba(58,18,32,0.55);margin:4px 0 0;">If both a photo and a link are given, the link is used. Pasting a link keeps the Sheet lighter than an uploaded photo.</p>
+            </div>
+            <button type="submit" class="btn teal" style="justify-content:center;">Upload Collection</button>
+          </form>
+        </div>
+        <div class="panel">
+          <h3>Current collections (${products.length})</h3>
+          <div class="admin-list" id="adminList">
+            ${products.length
+              ? products.map((p) => `
+                <div class="admin-item">
+                  <img src="${p.img}" alt="">
+                  <div class="meta">
+                    <b>${escapeHtml(p.name)}</b>
+                    <span>${escapeHtml(p.category)} · ${money(p.price)}</span>
+                  </div>
+                  <button class="btn small danger" data-remove="${p.id}">Remove</button>
+                </div>
+              `).join("")
+              : `<div class="empty">No products yet.</div>`}
+          </div>
+          <button class="btn small outline" id="logoutAdmin" style="margin-top:16px;">Log out</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById("logoutAdmin").addEventListener("click", () => {
+      clearAdminSession();
+      renderLogin();
+    });
+
+    const fileInput = document.getElementById("fImage");
+    fileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const maxW = 500;
+          const scale = Math.min(1, maxW / img.width);
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          uploadedImage = canvas.toDataURL("image/jpeg", 0.7);
+          const preview = document.getElementById("fPreview");
+          preview.src = uploadedImage;
+          preview.style.display = "block";
+        };
+        img.src = ev.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    document.getElementById("addProductForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const name = document.getElementById("fName").value.trim();
+      const category = document.getElementById("fCategory").value;
+      const price = Number(document.getElementById("fPrice").value);
+      const desc = document.getElementById("fDesc").value.trim();
+      const imageUrl = document.getElementById("fImageUrl").value.trim();
+
+      if (!name || !price) {
+        showToast("Please fill in name and price");
+        return;
+      }
+
+      let img = imageUrl || uploadedImage || paisleySVG("#C2255C", "#FFF7EC", category);
+      if (isBackendConfigured() && img.length > 45000) {
+        showToast("That photo is too large for the Sheet — try a smaller photo or paste an image link instead");
+        return;
+      }
+
+      const product = { id: "p" + Date.now(), name, category, price, desc, img };
+      const submitBtn = e.target.querySelector("button[type=submit]");
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Uploading…";
+
+      let ok = false;
+      try {
+        ok = await addProduct(product, getAdminPassword());
+      } catch (err) {
+        console.error(err);
+      }
+
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Upload Collection";
+
+      if (ok) {
+        showToast("Collection uploaded");
+        uploadedImage = null;
+        renderPanel();
+      } else {
+        showToast("Upload failed — check the Sheet connection and password");
+      }
+    });
+
+    section.querySelectorAll("[data-remove]").forEach((btn) => {
+      btn.addEventListener("click", async (e) => {
+        const id = e.currentTarget.dataset.remove;
+        if (!confirm("Remove this item from the collection?")) return;
+        btn.disabled = true;
+        btn.textContent = "Removing…";
+        let ok = false;
+        try {
+          ok = await removeProduct(id, getAdminPassword());
+        } catch (err) {
+          console.error(err);
+        }
+        if (ok) {
+          showToast("Item removed");
+          renderPanel();
+        } else {
+          showToast("Could not remove — check the Sheet connection");
+          btn.disabled = false;
+          btn.textContent = "Remove";
+        }
+      });
+    });
+  }
+
+  isAdmin() ? renderPanel() : renderLogin();
+</script>
+</body>
+</html>

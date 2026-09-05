@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Product — Shalu Selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">Shalu Selection <span>Textiles</span></a>
+    <nav class="links">
+      <a href="index.html" data-page="index.html">Home</a>
+      <a href="shop.html" data-page="shop.html">Shop</a>
+      <a href="about.html" data-page="about.html">About</a>
+      <a href="contact.html" data-page="contact.html">Contact</a>
+      <a href="cart.html" data-page="cart.html" class="cart-btn">🛍 Cart <span class="cart-count">0</span></a>
+      <div id="authArea" class="auth-area"></div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section style="padding-top:40px;" id="productSection"></section>
+</main>
+
+<footer>
+  <div class="foot-wrap">
+    <div>
+      <div class="logo" style="color:var(--marigold);font-size:1.3rem;">Shalu Selection</div>
+      <p style="max-width:280px;font-size:.85rem;opacity:.8;margin-top:10px;">Handpicked sarees, kurtis, dress materials and lehengas — colour and craft, brought to your doorstep.</p>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h4>Store</h4>
+        <a href="admin.html">Admin Panel</a>
+        <a href="cart.html">My Cart</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 Shalu Selection. Made with colour, for everyone.</div>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  (async () => {
+  const id = qs("id");
+  const section = document.getElementById("productSection");
+  section.innerHTML = `<div class="loading-row">Loading…</div>`;
+  const products = await getProducts();
+  const p = products.find(x => x.id === id);
+
+  if (!p) {
+    section.innerHTML = `<div class="empty"><div class="big">😕</div>We couldn't find that item.<br><a href="shop.html" class="btn small teal" style="margin-top:14px;">Back to Shop</a></div>`;
+  } else {
+    document.title = p.name + " — Shalu Selection";
+    section.innerHTML = `
+      <div class="detail-grid">
+        <div class="detail-img"><img src="${p.img}" alt="${escapeHtml(p.name)}"></div>
+        <div>
+          <div class="eyebrow">${escapeHtml(p.category)}</div>
+          <h1 style="font-size:2rem;">${escapeHtml(p.name)}</h1>
+          <div class="price" style="font-size:1.6rem;">${money(p.price)}</div>
+          <p style="color:rgba(58,18,32,0.75);margin-top:14px;">${escapeHtml(p.desc || "")}</p>
+          <div class="qty-row">
+            <div class="qty-box">
+              <button id="qtyMinus">−</button>
+              <span id="qtyVal">1</span>
+              <button id="qtyPlus">+</button>
+            </div>
+            <button class="btn teal" id="addCartDetail">Add to Cart</button>
+          </div>
+          <a href="shop.html" class="btn small outline">← Continue Browsing</a>
+        </div>
+      </div>
+    `;
+
+    let qty = 1;
+    const qtyVal = document.getElementById("qtyVal");
+    document.getElementById("qtyPlus").addEventListener("click", () => { qty++; qtyVal.textContent = qty; });
+    document.getElementById("qtyMinus").addEventListener("click", () => { if (qty > 1) { qty--; qtyVal.textContent = qty; } });
+    document.getElementById("addCartDetail").addEventListener("click", () => addToCart(p.id, qty));
+  }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Shalu Selection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">Shalu Selection <span>Textiles</span></a>
+    <nav class="links">
+      <a href="index.html" data-page="index.html">Home</a>
+      <a href="shop.html" data-page="shop.html">Shop</a>
+      <a href="about.html" data-page="about.html">About</a>
+      <a href="contact.html" data-page="contact.html">Contact</a>
+      <a href="cart.html" data-page="cart.html" class="cart-btn">🛍 Cart <span class="cart-count">0</span></a>
+      <div id="authArea" class="auth-area"></div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section style="padding-top:40px;">
+    <div class="section-head">
+      <div class="eyebrow">Get in touch</div>
+      <h2>We'd love to hear from you</h2>
+    </div>
+    <div class="contact-grid">
+      <div class="info-card">
+        <div class="row"><div class="ic">📍</div><div><b>Visit the store</b><br><span style="font-size:.88rem;color:rgba(58,18,32,0.65);">Shalu Selection, Main Textile Market</span></div></div>
+        <div class="row"><div class="ic">📞</div><div><b>Call us</b><br><span style="font-size:.88rem;color:rgba(58,18,32,0.65);">+91 90000 00000</span></div></div>
+        <div class="row"><div class="ic">🕘</div><div><b>Store hours</b><br><span style="font-size:.88rem;color:rgba(58,18,32,0.65);">Mon–Sat, 10 AM – 8 PM</span></div></div>
+        <a href="https://wa.me/910000000000" target="_blank" class="btn small teal" style="align-self:flex-start;margin-top:6px;">Chat on WhatsApp</a>
+      </div>
+      <form class="simple" id="contactForm">
+        <div>
+          <label>Your Name</label>
+          <input type="text" required placeholder="e.g. Priya Sharma">
+        </div>
+        <div>
+          <label>Phone / Email</label>
+          <input type="text" required placeholder="How can we reach you?">
+        </div>
+        <div>
+          <label>Message</label>
+          <textarea rows="4" required placeholder="Tell us what you're looking for..."></textarea>
+        </div>
+        <button type="submit" class="btn teal" style="align-self:flex-start;">Send Message</button>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-wrap">
+    <div>
+      <div class="logo" style="color:var(--marigold);font-size:1.3rem;">Shalu Selection</div>
+      <p style="max-width:280px;font-size:.85rem;opacity:.8;margin-top:10px;">Handpicked sarees, kurtis, dress materials and lehengas — colour and craft, brought to your doorstep.</p>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h4>Store</h4>
+        <a href="admin.html">Admin Panel</a>
+        <a href="cart.html">My Cart</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 Shalu Selection. Made with colour, for everyone.</div>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  document.getElementById("contactForm").addEventListener("submit", (e) => {
+    e.preventDefault();
+    showToast("Thanks! We'll get back to you soon.");
+    e.target.reset();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shalu Selection — Wrap Yourself in Colour</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Yeseva+One&family=Mukta:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<header>
+  <div class="nav-wrap">
+    <a href="index.html" class="logo">Shalu Selection <span>Textiles</span></a>
+    <nav class="links">
+      <a href="index.html" data-page="index.html">Home</a>
+      <a href="shop.html" data-page="shop.html">Shop</a>
+      <a href="about.html" data-page="about.html">About</a>
+      <a href="contact.html" data-page="contact.html">Contact</a>
+      <a href="cart.html" data-page="cart.html" class="cart-btn">🛍 Cart <span class="cart-count">0</span></a>
+      <div id="authArea" class="auth-area"></div>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="eyebrow">Shalu Selection</div>
+    <h1>Wrap yourself in colour, weave by weave</h1>
+    <p>Sarees, kurtis, dress materials and lehengas — curated for everyday joy and every celebration.</p>
+    <a href="shop.html" class="btn">Explore Collection</a>
+    <a href="about.html" class="btn ghost">Our Story</a>
+  </div>
+  <div class="motif"></div>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Shop by category</div>
+      <h2>Find your fabric</h2>
+    </div>
+    <div class="cat-row" id="catRow"></div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Fresh in store</div>
+      <h2>Featured collection</h2>
+      <p>A handful of favourites our customers keep coming back for.</p>
+    </div>
+    <div class="grid" id="featuredGrid"></div>
+    <div style="text-align:center;margin-top:34px;">
+      <a href="shop.html" class="btn teal">View Full Shop</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-wrap">
+    <div>
+      <div class="logo" style="color:var(--marigold);font-size:1.3rem;">Shalu Selection</div>
+      <p style="max-width:280px;font-size:.85rem;opacity:.8;margin-top:10px;">Handpicked sarees, kurtis, dress materials and lehengas — colour and craft, brought to your doorstep.</p>
+    </div>
+    <div class="foot-cols">
+      <div>
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+      </div>
+      <div>
+        <h4>Store</h4>
+        <a href="admin.html">Admin Panel</a>
+        <a href="cart.html">My Cart</a>
+      </div>
+    </div>
+  </div>
+  <div class="foot-bottom">© 2026 Shalu Selection. Made with colour, for everyone.</div>
+</footer>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+  const catRow = document.getElementById("catRow");
+  catRow.innerHTML = CATEGORIES.map(c => `
+    <a href="shop.html?category=${encodeURIComponent(c.name)}" class="cat-chip">
+      <div class="swatch" style="background:${c.color};">👗</div>
+      <div class="name">${c.name}</div>
+    </a>`).join("");
+
+  (async () => {
+    const featuredGrid = document.getElementById("featuredGrid");
+    featuredGrid.innerHTML = `<div class="loading-row">Loading collection…</div>`;
+    const products = await getProducts();
+    const featured = products.slice(0, 4);
+    featuredGrid.innerHTML = featured.length
+      ? featured.map(productCard).join("")
+      : `<div class="empty">No products yet — check back soon!</div>`;
+  })();
+</script>
+</body>
+</html>
